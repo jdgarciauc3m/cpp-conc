@@ -1,0 +1,134 @@
+\section{Hilos}
+
+\begin{frame}[t,fragile]{Lanzamiento de hilos}
+\begin{itemize}
+  \item Un hilo representado por la clase \cppid{std::thread}.
+    \begin{itemize}
+      \item Normalmente representa un hilo del SO.
+    \end{itemize}
+\begin{lstlisting}
+void f1();
+void f2();
+
+void g() {
+  std::thread t1{f1}; // Lanza un hilo que ejecuta f1()
+  std::thread t2{f2}; // Lanza un hilo que ejecuta f2()
+
+  t1.join(); // Espera a que t1 termine.
+  t2.join(); // Espera a que t2 termine.
+}
+\end{lstlisting}
+\end{itemize}
+\end{frame}
+
+\begin{frame}[t,fragile]{Objetos función}
+\begin{itemize}
+  \item Un \textgood{objeto función} es un tipo de datos que puede compartarse
+        como una función.
+\begin{lstlisting}[escapechar=@]
+struct mi_funcion {
+  mi_funcion(int x) : valor{x} {}
+  void operator()() { procesa(valor_); }
+  int valor_;
+};
+
+void test() {
+  mi_funcion f{42};
+  f(); // Ejecuta f.operator()()
+  //...@\pause@
+  std::thread t1(f); // Ejecuta f.operator()() en t1
+  std::thread t2(mi_funcion{42}); // Sobre un temporal
+  //...
+  t1.join();
+  t2.join();
+}
+\end{lstlisting}
+
+\end{itemize}
+\end{frame}
+
+\begin{frame}[t,fragile]{Objetos compartidos}
+\begin{itemize}
+  \item Dos hilos pueden acceder a un objeto compartido.
+  \item Posibilidad de carreras de datos.
+\end{itemize}
+\begin{lstlisting}
+int x = 42;
+
+void f() { ++x; }
+void g() { x=0; }
+void h() { cout << "Hola" << endl; }
+void i() { cout << "Adios" << endl; }
+
+void carrera() {
+  std::thread t1{f}; std::thread t2{g};
+
+  t1.join(); t2.join();
+
+  std::thread t3{h}; std::thread t4{i};
+
+  t3.join(); t4.join();
+}
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}[t,fragile]{Paso de argumentos}
+\begin{itemize}
+  \item Paso de parámetros simplificado sin necesidad de \emph{casts}.
+  \item Varias alternativas.
+\end{itemize}
+
+\begin{columns}[T]
+
+\column{.3\textwidth}
+
+\begin{lstlisting}
+void f1(int x);
+
+struct f2 {
+  void operator()();
+  f2(int px) : x{px} {}
+  int x;
+}
+
+void f3(double x);
+\end{lstlisting}
+
+\column{.7\textwidth}
+\begin{lstlisting}
+void g() {
+  std::thread t1{f1, 10}; // Ejecuta f1(10)
+  std::thread t2{f2{20}}; // Ejecuta f2{20}.operator()()
+  std::thread t3{[] { f3(1.5); } }; // Ejecuta una lambda
+
+  t1.join();
+  t2.join();
+  t3.join();
+}
+\end{lstlisting}
+
+\end{columns}
+
+\end{frame}
+
+\begin{frame}[t,fragile]{Comprobación de argumentos}
+\begin{itemize}
+  \item Se comprueba número y tipo de los argumentos.
+\end{itemize}
+
+\mode<presentation>{\vfill}
+\begin{block}{Paso de argumentos}
+\begin{lstlisting}
+void f1(int x);
+void f2(double x, double y);
+
+void g() {
+  std::thread t1{f1, 10}; // Ejecuta f1(10)
+  std::thread t2{f1}; // Error
+  std::thread t3{f2, 1.0} // Error
+  std::thread t4{f2, 1.0, 1.0}; // Ejecuta f2(1.0,1.0)
+  //...
+  // Joins de hilos
+\end{lstlisting}
+\end{block}
+\end{frame}

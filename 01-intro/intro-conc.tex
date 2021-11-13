@@ -1,0 +1,59 @@
+\section{Concurrencia en C++}
+
+\begin{frame}[t]{Motivación}
+\begin{itemize}
+  \item C++ ofrece un modelo de concurrencia propio.
+
+  \mode<presentation>{\vfill\pause}
+  \item Cualquier implementación que cumple el estándar debe proporcionarlo.
+    \begin{itemize}
+      \item \textmark{Portabilidad} de código concurrente: Windows, POSIX, ...
+      \item Resuelve \textmark{problemas} inherentes a PThreads.
+    \end{itemize}
+
+  \mode<presentation>{\vfill\pause}
+  \item Implicaciones:
+    \begin{itemize}
+      \item Reglas en el \textemph{lenguaje}.
+      \item Funcionalidades en la \textemph{biblioteca estándar}.
+    \end{itemize}
+
+  \mode<presentation>{\vfill\pause}
+  \item Influencia sobre C11 (ISO/IEC 9899:2011).
+
+  \mode<presentation>{\vfill\pause}
+  \item \textbad{Importante}: Concurrencia y paralelismo son conceptos relacionados pero distintos.
+\end{itemize}
+\end{frame}
+
+\begin{frame}[t]{Estructura}
+\begin{itemize}
+  \item El \textemph{lenguaje} ofrece:
+    \begin{itemize}
+      \item Un nuevo modelo de memoria.
+      \item Almacenamiento local al hilo (\cppkey{thread\_local}).
+    \end{itemize}
+
+  \mode<presentation>{\vfill\pause}
+  \item La \textemph{biblioteca} ofrece:
+    \begin{itemize}
+      \item Tipos \textmark{atómicos}.
+        \begin{itemize}
+          \item Útiles para programación libre de cerrojos de forma portable.
+        \end{itemize}
+      \item \textmark{Abstracciones} portables para la concurrencia.
+        \begin{itemize}
+          \item \textmark{Hilos}: \cppid{thread} \cppid{jthread}.
+          \item \textmark{Exclusión mutua}: \cppid{mutex}, \cppid{mutex\_*}.
+          \item \textmark{Gestión de bloqueos}: \cppid{unique\_lock}, \cppid{lock\_guard}, 
+                                                \cppid{scoped\_lock}, \ldots
+          \item \textmark{Notificación}: \cppid{condition\_variable}, \ldots
+          \item \textmark{Semáforos}: \cppid{counting\_semaphore}, \cppid{binary\_semaphore}.
+          \item \textmark{Barreras}: \cppid{latch}, \cppid{barrier}.
+          \item \textmark{Resultados de hilos}: \cppid{packaged\_task}, \cppid{future},
+                                                \cppid{promise}, \ldots
+        \end{itemize}
+    \end{itemize}
+\end{itemize}
+\end{frame}
+

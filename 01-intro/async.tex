@@ -1,0 +1,41 @@
+\section{Tareas asíncronas}
+
+\begin{frame}[t]{Tareas asíncronas y futuros}
+\begin{itemize}
+  \item Una tarea asíncrona permite el lanzamiento simple de la ejecución de una tarea:
+    \begin{itemize}
+      \item En otro hilo de ejecución.
+      \item Como una tarea diferida.
+    \end{itemize}
+
+  \mode<presentation>{\vfill\pause}
+  \item El lanzamiento de una tarea asíncrona devuelve un \cppid{std::future}.
+
+  \mode<presentation>{\vfill\pause}
+  \item Un futuro \cppid{f} tiene una operación \cppid{f.get()}
+    \begin{itemize}
+      \item Si un hilo devuelve un valor, la operación \cppid{get()} devuelve ese valor.
+      \item Si un hilo lanza una excepción, la operación \cppid{get()} lanza esa excepción.
+    \end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}[t,fragile]{Invocación de tareas asíncronas}
+\begin{lstlisting}
+#include <future>
+#include <iostream>
+
+double tarea(int i, int j);
+
+int main() {
+  std::future<double> r = std::async(tarea, 1, 10);
+  std::future<double> s = std::async(tarea, 50, 100);
+  otra_tarea();
+  auto x = r.get();
+  auto y = r.get();
+  std::cout << "x = " << x << "\n";
+  std::cout << "y = " << y << "\n";
+  return 0;
+}
+\end{lstlisting}
+\end{frame}

@@ -1,0 +1,157 @@
+\section{Acceso a datos compartidos}
+
+\begin{frame}[fragile]{Exclusión mutua}
+\begin{itemize}
+  \item Un \cppid{std::mutex} permite controlar el acceso con exclusión mutua a un recurso.
+
+    \begin{itemize}
+      \item \cppid{lock()}: Adquiere el cerrojo asociado.
+      \item \cppid{unlock()}: Libera el cerrojo asociado.
+    \end{itemize}
+\end{itemize}
+
+\mode<presentation>{\vfill}
+\begin{columns}[T]
+\begin{column}{.5\textwidth}
+\begin{block}{Uso de mutex}
+\begin{lstlisting}
+std::mutex m;
+int x = 0;
+
+void f() {
+  m.lock();
+  ++x;
+  m.unlock();
+}
+\end{lstlisting}
+\end{block}
+\end{column}
+
+\begin{column}{.5\textwidth}
+\begin{block}{Lanzamiento de hilos}
+\begin{lstlisting}
+void g() {
+  std::thread t1(f); 
+  std::thread t2(f);
+  t1.join(); 
+  t2.join();
+  cout << x << "\n";
+}
+\end{lstlisting}
+\end{block}
+\end{column}
+\end{columns}
+
+\end{frame}
+
+\begin{frame}[t,fragile]{Problemas con \texttt{lock()}/\texttt{unlock()}}
+\begin{itemize}
+  \item \textenum{Posibles problemas}:
+    \begin{itemize}
+      \item Olvido de \textbad{liberar cerrojo}.
+      \item \textbad{Excepciones}.
+    \end{itemize}
+\end{itemize}
+
+\mode<presentation>{\vfill}
+\begin{columns}[T]
+\begin{column}{.5\textwidth}
+\begin{block}{Olvidos}
+\begin{lstlisting}
+std::mutex m;
+int x = 0;
+
+void f() {
+  m.lock();
+  ++x;
+  // Ouch! olvido liberar cerrojo
+}
+\end{lstlisting}
+\end{block}
+\end{column}
+
+\mode<presentation>{\pause}
+
+\begin{column}{.5\textwidth}
+\begin{block}{Excepciones}
+\begin{lstlisting}
+std::mutex m;
+int x = 0;
+
+void f() {
+  m.lock();
+  g(x); // Excepciones?
+  m.unlock();
+}
+\end{lstlisting}
+\end{block}
+\end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}[t,fragile]{Evitando problemas con \texttt{unique\_lock}}
+\begin{itemize}
+  \item Solución: \cppid{unique\_lock}.
+    \begin{itemize}
+      \item \textgood{Patrón}: \textmark{RAII} (Resource Acquisition Is Initialization).
+    \end{itemize}
+\end{itemize}
+
+\mode<presentation>{\vfill}
+\begin{columns}[T]
+\begin{column}{.5\textwidth}
+\begin{block}{Cerrojo automático}
+\begin{lstlisting}
+std::mutex m;
+int x = 0;
+
+void f() {
+  // Adquiere el cerrojo
+  std::unique_lock l{m}; 
+  g(x);
+} // Libera el cerrojo
+\end{lstlisting}
+\end{block}
+\end{column}
+
+\begin{column}{.5\textwidth}
+\begin{block}{Lanzamiento de hilos}
+\begin{lstlisting}
+void g() {
+  std::thread t1(f); 
+  std::thread t2(f);
+  t1.join(); 
+  t2.join();
+
+  std::cout << x << "\n";
+}
+\end{lstlisting}
+\end{block}
+\end{column}
+\end{columns}
+\end{frame}
+
+
+\begin{frame}[fragile]{Adquisición de múltiples \texttt{mutex}}
+\begin{itemize}
+  \item Un \cppid{scoped\_lock} permite adquirir varios \cppid{mutex} a la vez.
+    \begin{itemize}
+      \item Adquiere todos o ninguno.
+      \item Si alguno está bloqueado espera dejando libres todos.
+    \end{itemize}
+\begin{lstlisting}
+mutex m1, m2, m3;
+void f() {
+  // Otras operaciones
+
+  {
+    std::scoped_lock l{m1,m2,m3};
+    // Acceso a datos compartidos
+  }
+
+  // Otra operaciones
+
+} // Se liberan m1, m2, m3
+\end{lstlisting}
+\end{itemize}
+\end{frame}
