@@ -1,0 +1,5 @@
+$(FINAL_INTRO_PDF): $(INTRO_PARTS) $(CONFIG_INPUT) $(IMG_INPUT)
+	$(LATEXMK) -jobname=$(INTRO_BASE) $(INTRO_BASE)/slides.tex
+
+$(FINAL_INTRO_EJ_PDF):	$(INTRO_EJ_PARTS) $(CONFIG_INPUT)
+	$(LATEXMK) -jobname=$(INTRO_BASE)-ej $(INTRO_BASE)/ej/hoja-ej.tex

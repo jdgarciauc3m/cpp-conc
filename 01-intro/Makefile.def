@@ -1,0 +1,14 @@
+INTRO_BASE= 01-intro
+INTRO_PARTS= \
+$(INTRO_BASE)/*.tex  \
+metadata.tex \
+license-cc.tex
+
+INTRO_PDF=$(INTRO_BASE).pdf
+
+FINAL_INTRO_PDF=$(FINAL_DIR)/$(INTRO_PDF)
+
+INTRO_EJ_PARTS=$(INTRO_BASE)/ej/*.tex
+INTRO_EJ_PDF=$(INTRO_BASE)-ej.pdf
+FINAL_INTRO_EJ_PDF=$(FINAL_DIR)/$(INTRO_EJ_PDF)
+
