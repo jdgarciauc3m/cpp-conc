@@ -1,0 +1,14 @@
+HILOS_BASE= 02-hilos
+HILOS_PARTS= \
+$(HILOS_BASE)/*.tex  \
+metadata.tex \
+license-cc.tex
+
+HILOS_PDF=$(HILOS_BASE).pdf
+
+FINAL_HILOS_PDF=$(FINAL_DIR)/$(HILOS_PDF)
+
+HILOS_EJ_PARTS=$(HILOS_BASE)/ej/*.tex
+HILOS_EJ_PDF=$(HILOS_BASE)-ej.pdf
+FINAL_HILOS_EJ_PDF=$(FINAL_DIR)/$(HILOS_EJ_PDF)
+

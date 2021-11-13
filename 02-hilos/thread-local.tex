@@ -1,0 +1,124 @@
+\section{Almacenamiento local al hilo}
+
+\begin{frame}[t]{Variables locales a hilos}
+\begin{itemize}
+  \item Alternativa a \cppkey{static} como especificador de almacenamiento: \cppkey{thread\_local}.
+    \begin{itemize}
+      \item Una variable \cppkey{static} tiene una única copia compartida por todos los hilos.
+      \item Una variable \cppkey{thread\_local} tiene una copia por cada hilo.
+    \end{itemize}
+
+  \mode<presentation>{\vfill\pause}
+  \item \textmark{Tiempo de vida}: duración de almacenamiento de hilo (\emph{thread storage duration}).
+    \begin{itemize}
+      \item Se inicia antes de su primer uso en el hilo.
+      \item Se destruye en la salida del hilo.
+    \end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}[t]{Razones}
+\begin{itemize}
+  \item ¿Por qué usar almacenamiento local al hilo?
+    \begin{itemize}
+      \item Transformar datos de almacenamiento estático a almacenamiento local al hilo.
+      \item Mantener cachés de datos locales a cada hilo (acceso exclusivo).
+        \begin{itemize}
+          \item Importante en máquinas con caché separada y protocolos de coherencia.
+        \end{itemize}
+    \end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}[t,fragile]{Contador de usos}
+\begin{lstlisting}[escapechar=@]
+static int n = 0;
+
+void f() {
+  calcula();
+  n++
+}
+
+void tarea() {
+  for (int i=0;i<max; ++i) {
+    f();
+  }
+}
+@\pause@
+void do {
+  std::thread t1{f}; std::thread t2{f};
+  t1.join(); t2.join();
+  std::cout << "n = " << n << "\n";
+}
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}[t,fragile]{Contador de usos}
+\begin{lstlisting}[escapechar=@]
+thread_local int n = 0;
+
+void f() {
+  calcula();
+  n++
+}
+
+int tarea() {
+  for (int i=0;i<max; ++i) {
+    f();
+  }
+  return n;
+}
+@\pause@
+void do {
+  auto r = std::async(tarea);
+  auto s = std::async(tarea);
+  std::cout << "n = " << r.get() + s.get() << "\n";
+}
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}[t,fragile]{Caches de resultados}
+\begin{lstlisting}
+
+int calcula_clave(int x) {
+  static map<int, int> cache;
+  auto i = cache.find(x);
+  if (i != cache.end()) return i->second;
+  return cache[arg] = algoritmo_complejo(arg);
+}
+
+vector<int> genera_lista(vector<int> v) {
+  vector<int> r;
+  for (auto x : v) {
+    r.push_back(calcula_clave(x));
+  }
+}
+\end{lstlisting}
+\begin{itemize}
+  \item Para cada x se ejecuta el algoritmo una única vez.
+  \item Útil si valores repetidos y algoritmo lento.
+\end{itemize}
+\end{frame}
+
+\begin{frame}[t,fragile]{Caches de resultados}
+\begin{lstlisting}
+
+int calcula_clave(int x) {
+  thread_local map<int, int> cache;
+  auto i = cache.find(x);
+  if (i != cache.end()) return i->second;
+  return cache[arg] = algoritmo_complejo(arg);
+}
+
+vector<int> genera_lista(vector<int> v) {
+  vector<int> r;
+  for (auto x : v) {
+    r.push_back(calcula_clave(x));
+  }
+}
+\end{lstlisting}
+\begin{itemize}
+  \item Se evita sincronización.
+  \item Puede que se repita algún cálculo.
+\end{itemize}
+\end{frame}

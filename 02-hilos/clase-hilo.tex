@@ -1,0 +1,20 @@
+\section{La clase \texttt{thread}}
+
+\begin{frame}[t]{La clase \texttt{thread}}
+\begin{itemize}
+  \item La abstracción de hilo representada mediante clase \cppid{thread}.
+  \item Correspondencia uno-a-uno con los hilos del sistema operativo.
+  \item Todos los hilos de una aplicación se ejecuta en el mismo espacio de direcciones.
+  \item Cada hilo tiene su propia pila.
+  \item Peligros:
+    \begin{itemize}
+      \item Pasar un puntero o una referencia no constante a otro hilo.
+      \item Paso de referencia a través de captura en expresiones lambdas.
+    \end{itemize}
+  \item \cppid{thread} representa un enlace a un hilo del sistema.
+    \begin{itemize}
+      \item No se pueden copiar.
+      \item Si se pueden mover.
+    \end{itemize}
+\end{itemize}
+\end{frame}

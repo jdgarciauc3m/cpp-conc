@@ -15,19 +15,24 @@ logos/uc3m.png
 
 include guide/Makefile.def
 include 01-intro/Makefile.def
+include 02-hilos/Makefile.def
 
 ALL_PARTS= \
 $(GUIDE_PARTS) \
 $(INTRO_PARTS) \
+$(HILOS_PARTS) \
 
 ALL_EJ_PARTS= \
 $(INTRO_EJ_PARTS) \
+$(HILOS_EJ_PARTS) \
 
 ALL_SLIDES_FINAL_PDF= \
 $(FINAL_DIR)/$(INTRO_PDF) \
+$(FINAL_DIR)/$(HILOS_PDF) \
 
 ALL_EJ_FINAL_PDF= \
 $(FINAL_DIR)/$(INTRO_EJ_PDF) \
+$(FINAL_DIR)/$(HILOS_EJ_PDF) \
 
 ALL_FINAL_PDF=\
 $(FINAL_DIR) \
@@ -53,3 +58,4 @@ $(FINAL_DIR):
 
 include $(GUIDE_BASE)/Makefile.mk
 include $(INTRO_BASE)/Makefile.mk
+include $(HILOS_BASE)/Makefile.mk
