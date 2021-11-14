@@ -2,17 +2,20 @@
 
 \begin{frame}[t]{Operaciones sobre el hilo actual}
 \begin{itemize}
-  \item Operaciones sobre el hilo actual como funciones globales en sub-espacio de nombres \cppid{this\_thread}.
+  \item Operaciones sobre el hilo actual como funciones globales en 
+        sub-espacio de nombres \cppid{std::this\_thread}.
     \begin{itemize}
       \item \cppid{get\_id()}: Obtiene el identificador del hilo actual.
       \item \cppid{yield()}: Permite que potencialmente se seleccione otro hilo para ejecución.
       \item \cppid{sleep\_until(t)}: Espera hasta un determinado instante de tiempo.
       \item \cppid{sleep\_for(d)}: Espera durante una duración determinada de tiempo.
     \end{itemize}
+
+  \mode<presentation>{\vfill}
   \item Esperas con tiempo:
     \begin{itemize}
       \item Si se modifica el reloj, \cppid{wait\_until()} se ve afectado.
-      \item Si se modifica el reloj, \cppid{wait\_for()} \textbf{no} se ve afectado.
+      \item Si se modifica el reloj, \cppid{wait\_for()} \textbad{no} se ve afectado.
     \end{itemize}
 \end{itemize}
 \end{frame}
