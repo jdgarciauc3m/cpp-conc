@@ -19,79 +19,121 @@
 
 \begin{frame}[t]{Razones}
 \begin{itemize}
-  \item ¿Por qué usar almacenamiento local al hilo?
+  \item \textgood{Transformar} datos de almacenamiento estático a almacenamiento local al hilo.
     \begin{itemize}
-      \item Transformar datos de almacenamiento estático a almacenamiento local al hilo.
-      \item Mantener cachés de datos locales a cada hilo (acceso exclusivo).
-        \begin{itemize}
-          \item Importante en máquinas con caché separada y protocolos de coherencia.
-        \end{itemize}
+      \item Variable \textmark{estática}: Una única instancia en la aplicación.
+      \item Variable \textmark{local al hilo}: Una instancia por hilo.
+      \item \textbad{Cuidado}: Se pasa a tener varias copias de la variable.
+    \end{itemize}
+
+  \mode<presentation>{\vfill\pause}
+  \item Mantener \textmark{cachés de datos} \textgood{locales} a cada hilo (acceso exclusivo).
+    \begin{itemize}
+      \item \textemph{Cada hilo} mantiene su \textmark{propia tabla} de valores frecuentes.
+      \item Importante en máquinas con caché de procesador separada y protocolos de coherencia.
     \end{itemize}
 \end{itemize}
 \end{frame}
 
 \begin{frame}[t,fragile]{Contador de usos}
-\begin{lstlisting}[escapechar=@]
-static int n = 0;
+\mode<presentation>{\vspace{-1em}}
+\begin{columns}[T]
 
-void f() {
-  calcula();
-  n++
-}
+\column{.5\textwidth}
+\begin{lstlisting}
+class C {
+public:
+  void f() {
+    calcula();
+    n++;
+  }
+  static int contador() { return n; }
+private:
+  static int n;
+};
+
+int C::n = 0;
 
 void tarea() {
+  C c;
   for (int i=0;i<max; ++i) {
-    f();
+    c.f();
   }
 }
-@\pause@
+\end{lstlisting}
+
+\pause
+
+\column{.5\textwidth}
+\begin{lstlisting}
 void do {
-  std::thread t1{f}; std::thread t2{f};
-  t1.join(); t2.join();
-  std::cout << "n = " << n << "\n";
+  {
+    std::jthread t1{f}; 
+    std::jthread t2{f};
+  }
+  std::cout << "n = " << C::contador() << "\n";
 }
 \end{lstlisting}
+\end{columns}
 \end{frame}
 
 \begin{frame}[t,fragile]{Contador de usos}
-\begin{lstlisting}[escapechar=@]
-thread_local int n = 0;
-
-void f() {
-  calcula();
-  n++
-}
-
-int tarea() {
-  for (int i=0;i<max; ++i) {
-    f();
+\mode<presentation>{\vspace{-1em}}
+\begin{columns}[T]
+\column{.5\textwidth}
+\begin{lstlisting}
+class C {
+public:
+  void f() {
+    calcula();
+    n++;
   }
-  return n;
+  static int contador() { return n; }
+private:
+  thread_local static int n;
+};
+
+thread_local int C::n = 0;
+
+void tarea() {
+  C c;
+  for (int i=0;i<max; ++i) {
+    c.f();
+  }
+  return C::contador();
 }
-@\pause@
+\end{lstlisting}
+
+\pause
+
+\column{.5\textwidth}
+\begin{lstlisting}
 void do {
   auto r = std::async(tarea);
   auto s = std::async(tarea);
   std::cout << "n = " << r.get() + s.get() << "\n";
 }
 \end{lstlisting}
+\end{columns}
 \end{frame}
 
 \begin{frame}[t,fragile]{Caches de resultados}
 \begin{lstlisting}
-
 int calcula_clave(int x) {
-  static map<int, int> cache;
+  static std::map<int, int> cache;
   auto i = cache.find(x);
   if (i != cache.end()) return i->second;
-  return cache[arg] = algoritmo_complejo(arg);
+  auto res = algoritmo_complejo(arg);
+  cache[arg] = res;
+  return res;
 }
 
-vector<int> genera_lista(vector<int> v) {
-  vector<int> r;
+std::vector<int> genera_lista(std::vector<int> v) {
+  std::vector<int> r;
   for (auto x : v) {
     r.push_back(calcula_clave(x));
   }
+  return r;
 }
 \end{lstlisting}
 \begin{itemize}
@@ -102,19 +144,21 @@ vector<int> genera_lista(vector<int> v) {
 
 \begin{frame}[t,fragile]{Caches de resultados}
 \begin{lstlisting}
-
 int calcula_clave(int x) {
-  thread_local map<int, int> cache;
+  thread_local std::map<int, int> cache;
   auto i = cache.find(x);
   if (i != cache.end()) return i->second;
-  return cache[arg] = algoritmo_complejo(arg);
+  auto res = algoritmo_complejo(arg);
+  cache[arg] = res;
+  return res;
 }
 
-vector<int> genera_lista(vector<int> v) {
-  vector<int> r;
+std::vector<int> genera_lista(std::vector<int> v) {
+  std::vector<int> r;
   for (auto x : v) {
     r.push_back(calcula_clave(x));
   }
+  return r;
 }
 \end{lstlisting}
 \begin{itemize}
